@@ -1,0 +1,68 @@
+﻿@model IEnumerable<PhoneDirectory.Models.PhoneNumber>
+@{
+    ViewBag.Title = "PhoneNumbers";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Phone Numbers</h2>
+<p>
+    @Html.ActionLink("Add Phone Number", "New", "PhoneNumber", null, new { @class = "btn btn-primary" })
+</p>
+@if (!Model.Any())
+{
+    <p>No available Phone Number record.</p>
+}
+else
+{
+    <table id="phoneNumbers" class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Phone Numbers</th>
+                <th>Update</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var phoneNumber in Model)
+            {
+                <tr>
+                    <td>@phoneNumber.Details</td>
+                    <td>@Html.ActionLink("Edit", "Edit", "PhoneNumber", new { id = phoneNumber.Id }, null)</td>
+                    <td>
+                        <button data-phonenumber-id="@phoneNumber.Id" class="btn-link js-delete">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            $("#phoneNumbers").DataTable(
+                {
+                    "bPaginate": false,
+                    "bInfo": false,
+                    "dom": '<"left"f>'
+                });
+
+            $("#phoneNumbers").on("click", ".js-delete",function () {
+                var button = $(this);
+
+                if (confirm("Are you sure you want to delete?")) {
+                    $.ajax({
+                        url: "/api/phonenumbers/" + button.attr("data-phonenumber-id"),
+                        method: "DELETE",
+                        success: function () {
+                            button.parents("tr").remove();
+                        }
+
+                    });
+                }
+            });
+        });
+    </script>    
+}
+
